@@ -1,0 +1,23 @@
+{
+  "control": {
+    "Source": "",
+    "Depends": [],
+    "Version": "0.0",
+    "Maintainer": "mehdilauters@gmail.com",
+    "Architecture": "all",
+    "Package": "simple-packager",
+    "Section": "developpement",
+    "postrm": null,
+    "postinst": null,
+    "Description": "Simple debian package creator"
+  },
+  "data": [
+    {
+      "src": "main.py",
+      "target": "/usr/bin/",
+      "rename":"simple-packager",
+      "rights": 555,
+      "owner": "root:root"
+    }
+  ]
+}
