@@ -65,7 +65,6 @@ class Package:
   
   def build(self,_out):
     basetmp = tempfile.mkdtemp()
-    print basetmp
     tmp = os.path.join(basetmp, self.desc['control']['Package'])
     os.mkdir(tmp)
     
@@ -83,6 +82,11 @@ class Package:
           f.write('%s: %s\n'%(k,v))
       f.write('Depends: %s\n\n'%', '.join(self.desc['control']['Depends']))
     
+    if self.desc['control']['postinst'] is not None:
+      postinst = os.path.join(ctrl_path, 'postinst')
+      shutil.copyfile(self.desc['control']['postinst'], postinst)
+      os.system('chmod 755 %s'%postinst)
+    
     for target in self.desc['data']:
         
       target_dir = data_path + os.path.normpath(target['target'])
@@ -92,7 +96,6 @@ class Package:
         if target.has_key('rename'):
           target_dir = os.path.join(target_dir, target['rename'])
         
-      print '=>', target_dir
       out = None
       if os.path.isdir(target['src']):
         out = target_dir
@@ -106,13 +109,12 @@ class Package:
       
       
       if target.has_key('rights'):
-        os.system('chmod -R %s %s'%(target['rights'], out))
+        os.system('fakeroot chmod -R %s %s'%(target['rights'], out))
       if target.has_key('owner'):
-        os.system('chown -R %s %s'%(target['owner'], out))
+        os.system('fakeroot chown -R %s %s'%(target['owner'], out))
     
-    os.system('dpkg-deb -b %s'%tmp)
+    os.system('fakeroot dpkg-deb -b %s >/dev/null'%tmp)
     out = os.path.join(basetmp, self.desc['control']['Package']+'.deb')
-    print out
     os.rename(out, _out)
     
 
@@ -131,4 +133,5 @@ if __name__ == '__main__':
     p = Package()
     p.load(args.package)
     p.build(args.output)
+    print "%s generated"%args.output
     sys.exit(0)
