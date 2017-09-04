@@ -2,7 +2,7 @@
   "control": {
     "Source": "",
     "Depends": [],
-    "Version": "0.0",
+    "Version": null,
     "Maintainer": "mehdilauters@gmail.com",
     "Architecture": "all",
     "Package": "simple-packager",

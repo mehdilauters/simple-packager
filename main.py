@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import subprocess
 import sys
 import argparse
 import tempfile
@@ -21,7 +22,7 @@ class Package:
       'control': {
         'Package':'',
         'Source':'',
-        'Version':'',
+        'Version':None,
         'Architecture':'',
         'Maintainer':'',
         'Depends': [],
@@ -63,7 +64,15 @@ class Package:
     with tarfile.open(output_filename, "w:gz") as tar:
         tar.add(source_dir, arcname=os.path.basename(source_dir))
   
+  def check_version(self):
+    if self.desc['control']['Version'] is None:
+      out = subprocess.check_output(["git", "describe", "--always"])
+      version = out.strip()
+      print version
+      self.desc['control']['Version'] = version
+  
   def build(self,_out):
+    self.check_version()
     basetmp = tempfile.mkdtemp()
     tmp = os.path.join(basetmp, self.desc['control']['Package'])
     os.mkdir(tmp)
