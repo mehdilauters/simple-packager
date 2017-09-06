@@ -8,6 +8,7 @@ import os
 import shutil
 import tarfile
 import json
+import glob
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -111,11 +112,12 @@ class Package:
         out = target_dir
         shutil.copytree(target['src'], out)
       else:
-        target_file = os.path.join(target_dir,target['src'])
-        if target.has_key('rename'):
-          target_file = os.path.join(target_dir,target['rename'])
-        out = target_file
-        shutil.copyfile(target['src'], target_file)
+        for src in glob.glob(target['src']):
+          target_file = os.path.join(target_dir,src)
+          if target.has_key('rename'):
+            target_file = os.path.join(target_dir,target['rename'])
+          out = target_file
+          shutil.copyfile(src, target_file)
       
       
       if target.has_key('rights'):
