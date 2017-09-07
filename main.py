@@ -14,7 +14,9 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--package", help="package description")
     parser.add_argument("-c", "--create", help=" name of package: create package description")
-    parser.add_argument("-output", "--output", help=" output name")
+    parser.add_argument("-output", "--output", help=" output folder")
+    parser.add_argument("-i", "--install", action="store_true", help=" install")
+    parser.add_argument("-r", "--requirements", action="store_true", help="install dependencies")
     
     return parser.parse_args()
 
@@ -37,6 +39,9 @@ class Package:
       }
     if desc is not None:
       self.desc = desc
+  
+  def get_dependencies(self):
+    return self.desc['control']['Depends']
   
   def install(self,_src, _target):
     self.desc['data'].append({
@@ -70,10 +75,11 @@ class Package:
     if self.desc['control']['Version'] is None:
       out = subprocess.check_output(["git", "describe", "--always"])
       version = out.strip()
-      print version
+      if not '.' in version:
+        version = '0.0.0-%s'%version
       self.desc['control']['Version'] = version
   
-  def build(self,_out):
+  def build(self,_output):
     self.check_version()
     basetmp = tempfile.mkdtemp()
     tmp = os.path.join(basetmp, self.desc['control']['Package'])
@@ -127,23 +133,40 @@ class Package:
     
     os.system('fakeroot dpkg-deb -b %s >/dev/null'%tmp)
     out = os.path.join(basetmp, self.desc['control']['Package']+'.deb')
-    os.rename(out, _out)
+    fname = '%s-%s-%s.deb'%(self.desc['control']['Package'], self.desc['control']['Version'], self.desc['control']['Architecture'])
+    os.rename(out, fname)
+    path = os.path.join(_output,fname)
+    os.rename(fname, path)
+    return path
     
 
 if __name__ == '__main__':
   args = parse_args()
   
   if args.output is None:
-    args.output = '/tmp/test.deb'
+    args.output = './'
   
   if args.create is not None:
     p = Package()
     p.create(args.create)
     sys.exit(0)
+    
   
   if args.package is not None:
     p = Package()
     p.load(args.package)
-    p.build(args.output)
-    print "%s generated"%args.output
+    
+    if args.requirements:
+      deps = p.get_dependencies()
+      d = ' '.join(deps)
+      os.system('sudo apt install %s'%d)
+      sys.exit(0)
+    
+    
+    
+    path = p.build(args.output)
+    print "%s generated"%path
+    if args.install:
+      print 'installing..'
+      os.system('sudo dpkg -i %s'%path)
     sys.exit(0)
