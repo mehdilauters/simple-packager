@@ -1,7 +1,7 @@
 {
   "control": {
     "Source": "",
-    "Depends": [],
+    "Depends": ["fakeroot", "python"],
     "Version": null,
     "Maintainer": "mehdilauters@gmail.com",
     "Architecture": "all",
