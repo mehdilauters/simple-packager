@@ -14,7 +14,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--package", help="package description")
     parser.add_argument("-c", "--create", help=" name of package: create package description")
-    parser.add_argument("-output", "--output", help=" output folder")
+    parser.add_argument("-o", "--output", help=" output folder")
     parser.add_argument("-i", "--install", action="store_true", help=" install")
     parser.add_argument("-r", "--requirements", action="store_true", help="install dependencies")
     
@@ -134,9 +134,9 @@ class Package:
     os.system('fakeroot dpkg-deb -b %s >/dev/null'%tmp)
     out = os.path.join(basetmp, self.desc['control']['Package']+'.deb')
     fname = '%s-%s-%s.deb'%(self.desc['control']['Package'], self.desc['control']['Version'], self.desc['control']['Architecture'])
-    os.rename(out, fname)
+    shutil.move(out, fname)
     path = os.path.join(_output,fname)
-    os.rename(fname, path)
+    shutil.move(fname, path)
     return path
     
 
