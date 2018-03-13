@@ -34,6 +34,7 @@ class Package:
         'Description':'',
         'postinst':None,
         'postrm':None,
+        'conffiles': None
         },
       'data' : []
       }
@@ -95,7 +96,7 @@ class Package:
     
     with open(os.path.join(ctrl_path, 'control'), 'w') as f:
       for k,v in self.desc['control'].iteritems():
-        if k != 'postinst' and k != 'postrm' and k != 'Depends':
+        if k != 'postinst' and k != 'postrm' and k != 'Depends' and k != 'conffiles':
           f.write('%s: %s\n'%(k,v))
       f.write('Depends: %s\n\n'%', '.join(self.desc['control']['Depends']))
     
@@ -103,6 +104,12 @@ class Package:
       postinst = os.path.join(ctrl_path, 'postinst')
       shutil.copyfile(self.desc['control']['postinst'], postinst)
       os.system('chmod 755 %s'%postinst)
+    
+    if self.desc['control'].has_key('conffiles'):
+      if self.desc['control']['conffiles'] is not None:
+        conffiles = os.path.join(ctrl_path, 'conffiles')
+        shutil.copyfile(self.desc['control']['conffiles'], conffiles)
+        os.system('chmod 755 %s'%conffiles)
     
     for target in self.desc['data']:
         

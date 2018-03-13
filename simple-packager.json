@@ -9,6 +9,7 @@
     "Section": "developpement",
     "postrm": null,
     "postinst": null,
+    "conffiles": null,
     "Description": "Simple debian package creator"
   },
   "data": [
