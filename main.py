@@ -76,6 +76,8 @@ class Package:
     if self.desc['control']['Version'] is None:
       out = subprocess.check_output(["git", "describe", "--always"])
       version = out.strip()
+      if version[0] == 'v':
+        version = version[1:]
       if not '.' in version:
         version = '0.0.0-%s'%version
       self.desc['control']['Version'] = version
