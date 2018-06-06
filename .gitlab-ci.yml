@@ -1,0 +1,34 @@
+before_script:
+  - apt-get update -qq && apt-get install -y -qq git python sudo wget unzip rsync curl
+
+stages:
+  - build
+  
+package:
+  stage: build
+  only:
+    - testing
+    - master
+  script:
+    - python main.py -p simple-packager.json -r
+    - git describe --always > version
+    - python main.py -p simple-packager.json
+    - ls -l *.deb
+  artifacts:
+    paths:
+    - "*.deb"
+
+    
+package-dev:
+  stage: build
+  only:
+    - dev
+  script:
+    - python main.py -p simple-packager.json -r
+    - git describe --always > version
+    - python main.py -p simple-packager.json
+    - ls -l *.deb
+  artifacts:
+    paths:
+    - "*.deb"
+    expire_in: 1 week
